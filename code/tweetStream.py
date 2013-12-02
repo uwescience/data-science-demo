@@ -58,6 +58,15 @@ outputfile = open('tweets.out', 'w')
 
 class CustomStreamListener(tweepy.StreamListener):
 
+    def on_data(self, raw_json):
+        """This function is called whenever data (in the form of JSON) from
+        Twitter is received. Here we intercept the data and log it, then pass
+        it up to the super-class to be handled as usual.
+        """
+        outputfile.write(raw_json + '\n')
+        print raw_json
+        tweepy.StreamListener.on_data(self, raw_json)
+
     def on_status(self, status):
         
         # We'll simply print some values in a tab-delimited format
@@ -66,13 +75,11 @@ class CustomStreamListener(tweepy.StreamListener):
 
 
         try:
-            print status.__dict__
-            tweet_string = str(status.__dict__)
-            outputfile.write(tweet_string + '\n')
             #print "%s\t%s\t%s\t%s" % (status.text, 
             #                          status.author.screen_name, 
             #                          status.created_at, 
             #                          status.source,)
+            pass
         except Exception, e:
             print >> sys.stderr, 'Encountered Exception:', e
             pass
