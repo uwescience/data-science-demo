@@ -16,17 +16,19 @@ import json
 
 Q = sys.argv[1:] 
 
-# Get these values from your application settings.
+# Load credentials from credentials.cfg
+import cred
+credentials = cred.read_credentials()
 
-CONSUMER_KEY = ''
-CONSUMER_SECRET = ''
+CONSUMER_KEY = credentials['consumer_key']
+CONSUMER_SECRET = credentials['consumer_secret']
 
 # Get these values from the "My Access Token" link located in the
 # margin of your application details, or perform the full OAuth
 # dance.
 
-ACCESS_TOKEN = ''
-ACCESS_TOKEN_SECRET = ''
+ACCESS_TOKEN = credentials['access_token_key']
+ACCESS_TOKEN_SECRET = credentials['access_token_secret'] 
 
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
