@@ -12,9 +12,17 @@ import tweepy
 import webbrowser
 import json 
 
-# Query terms
 
-Q = sys.argv[1:] 
+def get_parser():
+    import argparse
+    parser = argparse.ArgumentParser(description='Search the Twitter stream for one or more keywords')
+    parser.add_argument('keyword', nargs='+', help='keywords to search for')
+    return parser
+
+# Query terms
+parser = get_parser()
+args = parser.parse_args()
+Q = args.keyword
 
 # Load credentials from credentials.cfg
 import cred
