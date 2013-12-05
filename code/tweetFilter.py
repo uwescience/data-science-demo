@@ -11,11 +11,13 @@ import sys
 import tweepy
 import webbrowser
 import json 
+import time
 
 
 def get_parser():
     import argparse
     parser = argparse.ArgumentParser(description='Search the Twitter stream for one or more keywords')
+    parser.add_argument('--timeout', type=int, help='how long to collect tweets for (s)', default=None)
     parser.add_argument('keyword', nargs='+', help='keywords to search for')
     return parser
 
@@ -56,7 +58,12 @@ auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 ## added by CC as a place to output tweets to a file, currently this file isn't ever closed
 outputfile = open('tweets.out', 'w')
 
-class CustomStreamListener(tweepy.StreamListener):
+class TimedStreamListener(tweepy.StreamListener):
+
+    def __init__(self, timeout=None):
+        self.timeout = timeout
+        self.start = time.time()
+        tweepy.StreamListener.__init__(self)
 
     def on_data(self, raw_json):
         """This function is called whenever data (in the form of JSON) from
@@ -66,35 +73,17 @@ class CustomStreamListener(tweepy.StreamListener):
         outputfile.write(raw_json + '\n')
         print raw_json
         tweepy.StreamListener.on_data(self, raw_json)
-
-    def on_status(self, status):
-        
-        # We'll simply print some values in a tab-delimited format
-        # suitable for capturing to a flat file but you could opt 
-        # store them elsewhere, retweet select statuses, etc.
-
-
-        try:
-            #print "%s\t%s\t%s\t%s" % (status.text, 
-            #                          status.author.screen_name, 
-            #                          status.created_at, 
-            #                          status.source,)
-            pass
-        except Exception, e:
-            print >> sys.stderr, 'Encountered Exception:', e
-            pass
-
-    def on_error(self, status_code):
-        print >> sys.stderr, 'Encountered error with status code:', status_code
-        return True # Don't kill the stream
+        if self.timeout and (time.time() - self.start) > self.timeout:
+            print >> sys.stderr, 'stopping because timeout reached...'
+            return False
 
     def on_timeout(self):
-        print >> sys.stderr, 'Timeout...'
-        return True # Don't kill the stream
+        print >> sys.stderr, 'stopping because no data for timeout...'
+        return False
 
 # Create a streaming API and set a timeout value of 60 seconds.
 
-streaming_api = tweepy.streaming.Stream(auth, CustomStreamListener(), timeout=60)
+streaming_api = tweepy.streaming.Stream(auth, TimedStreamListener(timeout=args.timeout), timeout=args.timeout)
 
 # Optionally filter the statuses you want to track by providing a list
 # of users to "follow".
