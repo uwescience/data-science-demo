@@ -98,8 +98,11 @@ class TimedStreamListener(tweepy.StreamListener):
             return False
 
 # Create a streaming API and set a timeout value as described in TimedStreamListener above.
-http_timeout_cushion = min(1.5, args.timeout)
-http_timeout = max(http_timeout_cushion, args.timeout * 0.1)
+if args.timeout:
+    http_timeout_cushion = min(1.5, args.timeout)
+    http_timeout = max(http_timeout_cushion, args.timeout * 0.1)
+else:
+    http_timeout = 60
 streaming_api = tweepy.streaming.Stream(auth, TimedStreamListener(timeout=args.timeout), timeout=http_timeout)
 
 # Optionally filter the statuses you want to track by providing a list
