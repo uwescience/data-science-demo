@@ -25,8 +25,8 @@ class TwoArgTimedStreamListener(tweepy.StreamListener):
     def __init__(self, arg1, arg2, score, timeout=None):
         self.timeout = timeout
         self.start = time.time()
-        self.arg1 = arg1
-        self.arg2 = arg2
+        self.arg1 = arg1.lower()
+        self.arg2 = arg2.lower()
         self.score = score
         tweepy.StreamListener.__init__(self)
 
@@ -38,10 +38,11 @@ class TwoArgTimedStreamListener(tweepy.StreamListener):
         data = json.loads(raw_json)
         # print data['text']
         if 'text' in data:
-            if self.arg1 in data['text']:
+            text = data['text'].lower()
+            if self.arg1 in text:
                 self.score[0] += 1
                 print 'arg1 ' + str(self.score[0])
-            if self.arg2 in data['text']:
+            if self.arg2 in text:
                 self.score[1] += 1
                 print 'arg2 ' + str(self.score[1])
         
@@ -63,7 +64,7 @@ class TwitterFight:
         self.searchArg1 = searchArg1
         self.searchArg2 = searchArg2
         self.timeout = timeout
-        self.Q = self.searchArg1 + ' ' + self.searchArg2
+        self.Q = [self.searchArg1, self.searchArg2]
 
         self.score = [0,0]
 
