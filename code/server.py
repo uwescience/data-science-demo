@@ -1,14 +1,14 @@
 from gevent import monkey; monkey.patch_all()
 
 from bottle import route, run, request, response, abort, hook
-from fight import Fight
+from twitterfight import TwitterFight
 from json import dumps
 
 @route('/fight')
 def fight():
     response.content_type = 'application/json'
-    fight = Fight(request.params.a, request.params.b)
-    return dumps(fight.get_answer())
+    fight = TwitterFight(request.params.a, request.params.b)
+    return dumps(fight.final_score())
 
 @hook('after_request')
 def enable_cors():

@@ -19,7 +19,6 @@ auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 
 DEFAULT_TIMEOUT = 10  # in seconds
 
-
 class TwoArgTimedStreamListener(tweepy.StreamListener):
     
     def __init__(self, arg1, arg2, score, timeout=None):
@@ -75,10 +74,10 @@ class TwitterFight:
         streaming_api.filter(follow=None, track=self.Q)
 
     def final_score(self):
-        return self.score
+        return [{'label': self.searchArg1, 'value': self.score[0]},
+                {'label': self.searchArg2, 'value': self.score[1]}]
 
-
-f = TwitterFight('Seattle', 'Bieber', 30)
-print f.score
-print f.final_score()
-
+if __name__ == "__main__":
+    f = TwitterFight('Seattle', 'Bieber', 30)
+    print f.score
+    print f.final_score()
