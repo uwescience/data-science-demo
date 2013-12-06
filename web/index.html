@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Twitter data science demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+<link href="css/cse495.css" rel="stylesheet" media="screen">
+<link href="css/nv.d3.min.css" rel="stylesheet" media="screen">
+<script src="js/jquery-1.10.2.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/d3.v3.min.js"></script>
+<script src="js/nv.d3.min.js"></script>
+</head>
+<body>
+	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse"
+				data-target=".navbar-ex1-collapse">
+				<span class="sr-only">Toggle navigation</span> <span
+					class="icon-bar"></span> <span class="icon-bar"></span> <span
+					class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand">CSE Open House 2013</a>
+		</div>
+
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse navbar-ex1-collapse">
+			<ul class="nav navbar-nav">
+				<li><a href="#about">Fight</a></li>
+				<li><a href="#signup">Something else</a></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="https://github.com/uwescience/data-science-demo"
+					target="_blank">See the code on GitHub!</a></li>
+			</ul>
+		</div>
+		<!-- /.navbar-collapse -->
+	</nav>
+
+	<div class="container">
+		<H1 id="fight">Let's have a Twitter Fight!</H1>
+
+		<div class="row">
+			<div class="col-lg-4">
+				<div class="input-group input-group-lg">
+					<span class="input-group-addon">1</span> <input type="text"
+						class="form-control" id="fight1" placeholder="UW">
+				</div>
+			</div>
+
+			<div class="col-lg-4">
+				<div class="input-group input-group-lg">
+					<span class="input-group-addon">2</span> <input type="text"
+						class="form-control" id="fight2" placeholder="CSE">
+				</div>
+			</div>
+			<div class="col-lg-1">
+				<button type="button" class="btn btn-lg btn-default" id="btn-fight">FIGHT!</button>
+			</div>
+		</div>
+		<br />
+		<div class="row">
+			<div class="col-lg-9">
+				<svg id="fight-graph" width="100%" height="400px"></svg>
+			</div>
+			<div class="col-lg-3">
+				<a class="twitter-timeline"
+					href="https://twitter.com/search?q=%23CSEdWeek"
+					data-widget-id="409041365696131072">Tweets about "#CSEdWeek"</a>
+				<script>
+          !function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location) ? 'http' : 'https';
+            if (!d.getElementById(id)) {
+              js = d.createElement(s);
+              js.id = id;
+              js.src = p + "://platform.twitter.com/widgets.js";
+              fjs.parentNode.insertBefore(js, fjs);
+            }
+          }(document, "script", "twitter-wjs");
+        </script>
+
+			</div>
+		</div>
+	</div>
+</body>
+<script>
+  function fight() {
+    /* Clear the fight SVG, and hide it. */
+    $('#fight-graph').empty();
+
+    /* Get the first text box and make sure it has contents */
+    var fight1 = $("#fight1");
+    if (!fight1.val().trim()) {
+      fight1.val('');
+      fight1.focus();
+      return false;
+    }
+    /* Get the second text box and make sure it has contents */
+    var fight2 = $("#fight2");
+    if (!fight2.val().trim()) {
+      fight2.val('');
+      fight2.focus();
+      return false;
+    }
+
+    /* Start the spinner. */
+    var svg = d3.select('#fight-graph');
+    var imgs = svg.selectAll("image").data([ 0 ]);
+    imgs.enter() //
+    .append("svg:image") //
+    .attr("xlink:href", "CSELogo2.gif") //
+    .attr("x", "50%").attr("y", "50%") //
+    .attr("transform", "translate(-200,-200)") //
+    .attr("width", "400") //
+    .attr("height", "400");
+
+    /* Get the data. */
+    doFight(fight1.val().trim(), fight2.val().trim());
+
+    function doFight(a, b) {
+      $.ajax({
+        url : 'http://localhost:1234/fight',
+        data : {
+          a : a,
+          b : b
+        },
+        error : function() {
+          $('#fight-graph').empty();
+        },
+        success : function(resp) {
+          console.log(resp);
+          nv.addGraph(function() {
+            var chart = nv.models.discreteBarChart().x(function(d) {
+              return d.label
+            }).y(function(d) {
+              return d.value
+            }).staggerLabels(true).tooltips(false).showValues(true)
+
+            var data = [ {
+              key : "Fight Results!",
+              values : resp
+            } ];
+            $('image').hide();
+
+            d3.select('#fight-graph').datum(data).transition().duration(500).call(chart);
+
+            nv.utils.windowResize(chart.update);
+
+            return chart;
+          });
+        }
+      });
+    }
+  }
+
+  $('#btn-fight').click(fight);
+  //fight();
+</script>
+</html>

@@ -1,0 +1,17 @@
+/* Customizations to Bootstrap's default CSS */
+.navbar-inverse .navbar-brand {
+	color: #ffffff;
+}
+
+body {
+	padding-top: 60px;
+}
+
+body h1 {
+	padding-top: 60px;
+	margin-top: -60px;
+}
+
+.container {
+	text-align: center;
+}
