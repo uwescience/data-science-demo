@@ -7,4 +7,5 @@ class Fight(object):
 
     def get_answer(self):
         sleep(.2)
-        return {'first': self.first, 'second': self.second}
+        return [{'label': self.first, 'value': 10},
+                {'label': self.second, 'value': 5}]
