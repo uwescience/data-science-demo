@@ -27,6 +27,7 @@ class TwoArgTimedStreamListener(tweepy.StreamListener):
         self.arg1 = arg1.lower()
         self.arg2 = arg2.lower()
         self.score = score
+        self.data_count = 0
         tweepy.StreamListener.__init__(self)
 
     def on_data(self, raw_json):
@@ -40,19 +41,20 @@ class TwoArgTimedStreamListener(tweepy.StreamListener):
             text = data['text'].lower()
             if self.arg1 in text:
                 self.score[0] += 1
-                print 'arg1 ' + str(self.score[0])
             if self.arg2 in text:
                 self.score[1] += 1
-                print 'arg2 ' + str(self.score[1])
+        self.data_count += 1
         
         tweepy.StreamListener.on_data(self, raw_json)
         if self.timeout and (time.time() - self.start) > self.timeout:
             print >> sys.stderr, 'stopping because timeout reached...'
+            print "counts: %s total: %d" % (self.score, self.data_count)
             return False
 
     def on_timeout(self):
         if self.timeout and (time.time() - self.start) > self.timeout:
             print >> sys.stderr, 'stopping because no data for timeout...'
+            print "counts: %s total: %d" % (self.score, self.data_count)
             return False
 
 
@@ -64,6 +66,7 @@ class TwitterFight:
         self.searchArg2 = searchArg2
         self.timeout = timeout
         self.Q = [self.searchArg1, self.searchArg2]
+#        self.Q = ','.join([self.searchArg1, self.searchArg2])
 
         self.score = [0,0]
 
